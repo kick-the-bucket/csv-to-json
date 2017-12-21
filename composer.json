@@ -1,0 +1,15 @@
+{
+    "autoload": {
+        "psr-4": {
+            "CsvToJson\\": "src/CsvToJson"
+        }
+    },
+    "require": {
+        "portphp/csv": "2.0.x-dev",
+        "portphp/symfony-console": "2.0.x-dev",
+        "symfony/console": "3.4.x-dev"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^2.9"
+    }
+}
