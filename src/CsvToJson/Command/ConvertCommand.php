@@ -2,6 +2,8 @@
 
 namespace CsvToJson\Command;
 
+use CsvToJson\Constant\Alerts;
+use CsvToJson\Constant\Medals;
 use Port\Csv\CsvReader;
 use Port\SymfonyConsole\TableWriter;
 use Symfony\Component\Console\Command\Command;
@@ -26,15 +28,6 @@ class ConvertCommand extends Command
      * @var string
      */
     private $outputPath = __DIR__.'/../../../output/';
-    /**
-     * @var array
-     */
-    private static $medals = [
-        'b' => 'silv',
-        's' => 'gold',
-        'g' => 'plat',
-        'p' => 'onyx',
-    ];
 
     /**
      * ConvertCommand constructor.
@@ -81,14 +74,15 @@ class ConvertCommand extends Command
                 continue;
             }
             $date = \DateTime::createFromFormat('Y-m-d H:i+', $row['deadline']);
-            $comment = $date->format('Y-m-d H:i').' @'.$row['agent'].' ('.self::$medals[$row['medal']].')';
+            $medal = Medals::$nextMedal[$row['medal']];
+            $comment = sprintf('%s @%s (%s)', $date->format('Y-m-d H:i'), $row['agent'], $medal);
             $writer->writeItem([
                 'Portal' => $row['portal'],
                 'Comment' => $comment,
                 'Intel' => $row['intel'],
             ]);
             $data['Alerts'][] = [
-                'alerttype' => 'DestroyPortalAlert',
+                'alerttype' => Alerts::getAlertByNumber(Medals::$days[$medal] - $row['days']),
                 'nodeName' => $row['portal'],
                 'lat' => $row['lat'],
                 'lng' => $row['lng'],
