@@ -69,10 +69,12 @@ class ConvertCommand extends Command
         $reader->setColumnHeaders(['agent', 'medal', 'portal', 'lat', 'lng', 'intel', 'days', 'deadline']);
         $writer = new TableWriter((new Table($output))->setStyle('symfony-style-guide'));
         $data = ['Alerts' => []];
+        $links = [];
         foreach ($reader as $row) {
-            if ('missed' === $row['deadline']) {
+            if ('missed' === $row['deadline'] || \in_array($row['intel'], $links, true)) {
                 continue;
             }
+            $links[] = $row['intel'];
             $date = \DateTime::createFromFormat('Y-m-d H:i+', $row['deadline']);
             $medal = Medals::$nextMedal[$row['medal']];
             $comment = sprintf('%s @%s (%s)', $date->format('Y-m-d H:i'), $row['agent'], $medal);
