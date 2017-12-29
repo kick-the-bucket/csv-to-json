@@ -5,6 +5,7 @@
         }
     },
     "require": {
+        "php": "^7.1",
         "portphp/csv": "2.0.x-dev",
         "portphp/symfony-console": "2.0.x-dev",
         "symfony/console": "3.4.x-dev"

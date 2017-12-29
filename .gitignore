@@ -4,8 +4,9 @@
 # PHPUnit
 /phpunit.xml
 
-# Input and output directories
-/input/*
-!/input/.gitkeep
-/output/*
-!/output/.gitkeep
+# PHPCodeSniffer/Fixer cache
+.php_cs.cache
+
+# Input and output files
+*.csv
+*-alerts.json

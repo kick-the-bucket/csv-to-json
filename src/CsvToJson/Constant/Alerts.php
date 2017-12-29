@@ -7,22 +7,22 @@ namespace CsvToJson\Constant;
  */
 final class Alerts
 {
-    const DESTROY = 'DestroyPortalAlert';
-    const VIRUS = 'UseVirusPortalAlert';
-    const GOTO = 'GotoPortalAlert';
+    private const DESTROY = 'DestroyPortalAlert';
+    private const GOTO = 'GotoPortalAlert';
+    private const VIRUS = 'UseVirusPortalAlert';
 
     /**
-     * @param int $number
+     * @param int $days
      *
      * @return string
      */
-    public static function getAlertByNumber(int $number): string
+    public static function getAlertByDays(int $days): string
     {
         switch (true) {
-            case $number <= 15:
+            case $days <= 15:
                 return self::VIRUS;
-            case $number <= 30:
-                return self::VIRUS;
+            case $days <= 30:
+                return self::DESTROY;
             default:
                 return self::GOTO;
         }
