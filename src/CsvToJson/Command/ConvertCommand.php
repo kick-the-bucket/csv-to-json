@@ -184,7 +184,10 @@ class ConvertCommand extends Command
     private function isRowValid(array $row): bool
     {
         static $links = [];
-        $isValid = 'missed' !== $row[Fields::DEADLINE] && !\in_array($row[Fields::INTEL], $links, true);
+        $isValid = !empty($row[Fields::DEADLINE])
+            && 'missed' !== $row[Fields::DEADLINE]
+            && !\in_array($row[Fields::INTEL], $links, true)
+        ;
         if ($isValid) {
             $links[] = $row[Fields::INTEL];
         }
