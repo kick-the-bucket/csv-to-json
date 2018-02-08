@@ -32,13 +32,13 @@ class ConvertCommand extends Command
      */
     private $inputFile;
     /**
-     * @var Table
-     */
-    private $table;
-    /**
      * @var string
      */
     private $outputFile;
+    /**
+     * @var Table
+     */
+    private $table;
     /**
      * @var TableWriter
      */
@@ -52,6 +52,9 @@ class ConvertCommand extends Command
         parent::__construct(self::NAME);
     }
 
+    /**
+     * @throws \Symfony\Component\Console\Exception\InvalidArgumentException
+     */
     public function __destruct()
     {
         if ($this->writer instanceof TableWriter) {
@@ -86,6 +89,25 @@ class ConvertCommand extends Command
     /**
      * {@inheritdoc}
      *
+     * @throws \Symfony\Component\Console\Exception\InvalidArgumentException
+     */
+    protected function execute(InputInterface $input, OutputInterface $output): void
+    {
+        $alerts = [];
+        foreach ($this->createReader($this->inputFile) as $row) {
+            if (!$this->isRowUnique($row)) {
+                continue;
+            }
+            $alerts[] = $this->generateAlert($row);
+            $this->outputRow($output, $row);
+            ++$this->counter;
+        }
+        $this->writeAlerts($alerts);
+    }
+
+    /**
+     * {@inheritdoc}
+     *
      * @throws \InvalidArgumentException
      */
     protected function initialize(InputInterface $input, OutputInterface $output): void
@@ -110,25 +132,6 @@ class ConvertCommand extends Command
             $this->table = (new Table($output))->setStyle('symfony-style-guide');
             $this->writer = new TableWriter($this->table);
         }
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @throws \Symfony\Component\Console\Exception\InvalidArgumentException
-     */
-    protected function execute(InputInterface $input, OutputInterface $output): void
-    {
-        $alerts = [];
-        foreach ($this->createReader($this->inputFile) as $row) {
-            if (!$this->isRowValid($row)) {
-                continue;
-            }
-            $alerts[] = $this->generateAlert($row);
-            $this->outputRow($output, $row);
-            ++$this->counter;
-        }
-        $this->writeAlerts($alerts);
     }
 
     /**
@@ -157,7 +160,7 @@ class ConvertCommand extends Command
             'nodeName' => $row[Fields::PORTAL],
             'lat' => $row[Fields::LAT],
             'lng' => $row[Fields::LNG],
-            'comment' => $this->getComment($row),
+            'comment' => $this->generateComment($row),
         ];
     }
 
@@ -166,14 +169,20 @@ class ConvertCommand extends Command
      *
      * @return string
      */
-    private function getComment(array $row): string
+    private function generateComment(array $row): string
     {
-        return sprintf(
-            '%s @%s (%s)',
-            \DateTime::createFromFormat('Y-m-d H:i+', $row[Fields::DEADLINE])->format('Y-m-d H:i'),
-            $row[Fields::AGENT],
-            Medals::getNextMedal($row[Fields::MEDAL])
-        );
+        $deadline = $row[Fields::DEADLINE];
+        $agent = $row[Fields::AGENT];
+
+        return !$deadline
+            ? sprintf('@%s (%sd)', $agent, $row[Fields::DAYS])
+            : sprintf(
+                '%s @%s (%s)',
+                \DateTime::createFromFormat('Y-m-d H:i+', $deadline)->format('Y-m-d H:i'),
+                $agent,
+                Medals::getNextMedal($row[Fields::MEDAL])
+            )
+        ;
     }
 
     /**
@@ -181,13 +190,10 @@ class ConvertCommand extends Command
      *
      * @return bool
      */
-    private function isRowValid(array $row): bool
+    private function isRowUnique(array $row): bool
     {
         static $links = [];
-        $isValid = !empty($row[Fields::DEADLINE])
-            && 'missed' !== $row[Fields::DEADLINE]
-            && !\in_array($row[Fields::INTEL], $links, true)
-        ;
+        $isValid = !\in_array($row[Fields::INTEL], $links, true);
         if ($isValid) {
             $links[] = $row[Fields::INTEL];
         }
@@ -202,12 +208,14 @@ class ConvertCommand extends Command
     private function outputRow(OutputInterface $output, array $row): void
     {
         if ($output->isVerbose()) {
-            $comment = $this->getComment($row);
-            $this->writer->writeItem([
-                'Portal' => $row[Fields::PORTAL],
-                'Comment' => $comment,
-                'Intel' => $row[Fields::INTEL],
-            ]);
+            $comment = $this->generateComment($row);
+            $this->writer->writeItem(
+                [
+                    'Portal' => $row[Fields::PORTAL],
+                    'Comment' => $comment,
+                    'Intel' => $row[Fields::INTEL],
+                ]
+            );
         }
     }
 

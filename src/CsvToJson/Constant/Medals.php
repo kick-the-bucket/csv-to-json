@@ -11,6 +11,7 @@ final class Medals
     public const GOLD_LONG = 'gold';
     public const GOLD_SHORT = 'g';
     public const ONYX_LONG = 'onyx';
+    public const ONYX_SHORT = 'o';
     public const PLATINUM_LONG = 'plat';
     public const PLATINUM_SHORT = 'p';
     public const SILVER_LONG = 'silv';
@@ -33,6 +34,7 @@ final class Medals
         self::SILVER_SHORT => self::GOLD_LONG,
         self::GOLD_SHORT => self::PLATINUM_LONG,
         self::PLATINUM_SHORT => self::ONYX_LONG,
+        self::ONYX_SHORT => self::ONYX_LONG,
     ];
 
     /**
