@@ -22,6 +22,7 @@ class ConvertCommand extends Command
     public const ARG_FILE = 'file';
     public const ARG_OUTPUT = 'output';
     public const NAME = 'convert';
+    public const OPT_ONYX = 'onyx';
 
     /**
      * @var int
@@ -58,10 +59,14 @@ class ConvertCommand extends Command
     public function __destruct()
     {
         if ($this->writer instanceof TableWriter) {
-            $this->table
-                ->addRow(new TableSeparator())
-                ->addRow(['Total', $this->counter])
-            ;
+            if ($this->counter > 0) {
+                $this->table
+                    ->addRow(new TableSeparator())
+                    ->addRow(['Total', $this->counter])
+                ;
+            } else {
+                $this->writer->writeItem(['Total' => $this->counter]);
+            }
             $this->writer->finish();
         }
     }
@@ -83,6 +88,7 @@ class ConvertCommand extends Command
                 InputArgument::OPTIONAL,
                 'Output directory'
             )
+            ->addOption(self::OPT_ONYX)
         ;
     }
 
@@ -95,7 +101,9 @@ class ConvertCommand extends Command
     {
         $alerts = [];
         foreach ($this->createReader($this->inputFile) as $row) {
-            if (!$this->isRowUnique($row)) {
+            if (!$this->isRowUnique($row)
+                || ($input->getOption(self::OPT_ONYX) && $row[Fields::DAYS] <= Medals::ONYX_DAYS)
+            ) {
                 continue;
             }
             $alerts[] = $this->generateAlert($row);

@@ -8,12 +8,16 @@ namespace CsvToJson\Constant;
 final class Medals
 {
     public const BRONZE_SHORT = 'b';
+    public const GOLD_DAYS = 20;
     public const GOLD_LONG = 'gold';
     public const GOLD_SHORT = 'g';
+    public const ONYX_DAYS = 150;
     public const ONYX_LONG = 'onyx';
     public const ONYX_SHORT = 'o';
+    public const PLATINUM_DAYS = 90;
     public const PLATINUM_LONG = 'plat';
     public const PLATINUM_SHORT = 'p';
+    public const SILVER_DAYS = 10;
     public const SILVER_LONG = 'silv';
     public const SILVER_SHORT = 's';
 
@@ -21,10 +25,10 @@ final class Medals
      * @var int[]
      */
     private const DAYS = [
-        self::SILVER_LONG => 10,
-        self::GOLD_LONG => 20,
-        self::PLATINUM_LONG => 90,
-        self::ONYX_LONG => 150,
+        self::SILVER_LONG => self::SILVER_DAYS,
+        self::GOLD_LONG => self::GOLD_DAYS,
+        self::PLATINUM_LONG => self::PLATINUM_DAYS,
+        self::ONYX_LONG => self::ONYX_DAYS,
     ];
     /**
      * @var string[]
